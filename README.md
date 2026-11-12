@@ -7,7 +7,7 @@ You don't install from here. Install Pointy in DSH as usual: upstream publishes 
 ## How a release happens
 
 1. Upstream tags a release in `pointylab/pointy`.
-2. Every 15 minutes, [the workflow](.github/workflows/release.yml) here checks for an upstream release it has not signed yet. When it finds one, it pins the tag's commit and runs upstream's own `tools/pack-plugin.ts` on it. Pointy.app is signed with a Developer ID and notarized by Apple; the signature, notarization ticket and version are checked before anything is published. Signing waits for approval in the `release` environment.
+2. Every 15 minutes, [the workflow](.github/workflows/release.yml) here checks for an upstream release it has not signed yet. When it finds one, it pins the tag's commit and runs upstream's own `tools/pack-plugin.ts` on it. Pointy.app is signed with a Developer ID and notarized by Apple; the signature, notarization ticket and version are checked before anything is published.
 3. The package is published as a GitHub release here, with a build-provenance attestation.
 4. Upstream picks the release up, verifies the attestation, and publishes the package to npm.
 
