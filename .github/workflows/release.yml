@@ -5,7 +5,7 @@ name: Sign and release
 # it as a GitHub release here, with a build-provenance attestation. Upstream
 # picks the release up, verifies the attestation and publishes it to npm.
 #
-# Runs hourly and picks up the newest upstream release this repo has not
+# Runs every 15 minutes and picks up the newest upstream release this repo has not
 # published yet; or run it by hand with a tag. Signing runs in the `release`
 # environment, so a required reviewer there approves every signature.
 #
@@ -19,7 +19,8 @@ name: Sign and release
 
 on:
   schedule:
-    - cron: '17 * * * *'
+    # Off the hour, when GitHub's scheduler is least busy.
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
     inputs:
       tag:
@@ -39,10 +40,20 @@ env:
 jobs:
   resolve:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
       sha: ${{ steps.tag.outputs.sha }}
     steps:
+      # GitHub turns off schedules in a public repo after 60 days without
+      # activity, and this repo rarely gets commits; enabling the workflow
+      # again resets that clock.
+      - name: Keep the schedule alive
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/release.yml/enable"
       - id: tag
         env:
           GH_TOKEN: ${{ github.token }}
